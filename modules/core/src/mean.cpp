@@ -669,12 +669,12 @@ static bool ipp_meanStdDev(Mat& src, OutputArray _mean, OutputArray _sdv, Mat& m
 #if IPP_VERSION_X100 >= 700
     int cn = src.channels();
 
-#if IPP_VERSION_X100 < 201801
+#if 0 //IPP_VERSION_X100 < 201801
     // IPP_DISABLE: C3C functions can read outside of allocated memory
     if (cn > 1)
         return false;
 #endif
-#if IPP_VERSION_X100 < 201901
+#if 0 // IPP_VERSION_X100 < 201901
     // IPP_DISABLE: 32f C3C functions can read outside of allocated memory
     if (cn > 1 && src.depth() == CV_32F)
         return false;
@@ -682,6 +682,9 @@ static bool ipp_meanStdDev(Mat& src, OutputArray _mean, OutputArray _sdv, Mat& m
 
     size_t total_size = src.total();
     int rows = src.size[0], cols = rows ? (int)(total_size/rows) : 0;
+
+printf("cn=%d depth=%d  cols=%d rows=%d src.dims=%d  mask.empty()=%d\n", cn, src.depth(), cols, rows, src.dims, (int)mask.empty());
+
     if( src.dims == 2 || (src.isContinuous() && mask.isContinuous() && cols > 0 && (size_t)rows*cols == total_size) )
     {
         Ipp64f mean_temp[3];

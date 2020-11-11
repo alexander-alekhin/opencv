@@ -48,7 +48,7 @@ namespace ocl {
 
 using namespace cv;
 
-int test_loop_times = 1; // TODO Read from command line / environment
+int test_loop_times = 100; // TODO Read from command line / environment
 
 Mat TestUtils::readImage(const String &fileName, int flags)
 {
