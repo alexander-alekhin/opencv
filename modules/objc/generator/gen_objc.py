@@ -709,6 +709,10 @@ class ObjectiveCWrapperGenerator(object):
         if self.isWrapped(name) and not classinfo.base:
             logging.warning('duplicated: %s', classinfo)
             return None
+        if name in self.classes:  # TODO implement inner namespaces
+            if self.classes[name].symbol_id != classinfo.symbol_id:
+                logging.warning('duplicated under new id: {} (was {})'.format(classinfo.symbol_id, self.classes[name].symbol_id))
+                return None
         self.classes[name] = classinfo
         if name in type_dict and not classinfo.base:
             logging.warning('duplicated: %s', classinfo)
@@ -812,7 +816,12 @@ class ObjectiveCWrapperGenerator(object):
         elif not self.isWrapped(classname):
             logging.warning('not found: %s', fi)
         else:
-            self.getClass(classname).addMethod(fi)
+            ci = self.getClass(classname)
+            if ci.symbol_id != fi.symbol_id[0:fi.symbol_id.rfind('.')] and ci.symbol_id != self.Module:
+                # TODO fix this (inner namepaces)
+                logging.warning('SKIP: mismatched class: {} (class: {})'.format(fi.symbol_id, ci.symbol_id))
+                return
+            ci.addMethod(fi)
             logging.info('ok: %s', fi)
             # calc args with def val
             cnt = len([a for a in fi.args if a.defval])
