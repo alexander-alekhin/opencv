@@ -27,6 +27,10 @@ updated_files = 0
 
 module_imports = []
 
+# list of namespaces, which should be skipped by wrapper generator
+# the list is loaded from misc/objc/gen_dict.json defined for the module only
+namespace_ignore_list = []
+
 # list of class names, which should be skipped by wrapper generator
 # the list is loaded from misc/objc/gen_dict.json defined for the module and its dependencies
 class_ignore_list = []
@@ -89,6 +93,14 @@ method_dict = {
 
 modules = []
 
+
+class SkipSymbolException(Exception):
+    def __init__(self, text):
+        self.t = text
+    def __str__(self):
+        return self.t
+
+
 def read_contents(fname):
     with open(fname, 'r') as f:
         data = f.read()
@@ -121,6 +133,10 @@ T_OBJC_MODULE_BODY = read_contents(os.path.join(SCRIPT_DIR, 'templates/objc_modu
 class GeneralInfo():
     def __init__(self, type, decl, namespaces):
         self.symbol_id, self.namespace, self.classpath, self.classname, self.name = self.parseName(decl[0], namespaces)
+
+        for ns_ignore in namespace_ignore_list:
+            if self.symbol_id.startswith(ns_ignore + '.'):
+                raise SkipSymbolException('ignored namespace ({}): {}'.format(ns_ignore, self.symbol_id))
 
         # parse doxygen comments
         self.params={}
@@ -876,17 +892,20 @@ class ObjectiveCWrapperGenerator(object):
             for decl in decls:
                 logging.info("\n--- Incoming ---\n%s", pformat(decl[:5], 4)) # without docstring
                 name = decl[0]
-                if name.startswith("struct") or name.startswith("class"):
-                    ci = self.add_class(decl)
-                    if ci:
-                        ci.header_import = header_import(hdr)
-                elif name.startswith("const"):
-                    self.add_const(decl)
-                elif name.startswith("enum"):
-                    # enum
-                    self.add_enum(decl)
-                else: # function
-                    self.add_func(decl)
+                try:
+                    if name.startswith("struct") or name.startswith("class"):
+                        ci = self.add_class(decl)
+                        if ci:
+                            ci.header_import = header_import(hdr)
+                    elif name.startswith("const"):
+                        self.add_const(decl)
+                    elif name.startswith("enum"):
+                        # enum
+                        self.add_enum(decl)
+                    else: # function
+                        self.add_func(decl)
+                except SkipSymbolException as e:
+                    logging.info('SKIP: {} due to {}'.format(name, e))
         self.classes[self.Module].member_classes += manual_classes
 
         logging.info("\n\n===== Generating... =====")
@@ -1611,6 +1630,7 @@ if __name__ == "__main__":
         if os.path.exists(gendict_fname):
             with open(gendict_fname) as f:
                 gen_type_dict = json.load(f)
+            namespace_ignore_list = gen_type_dict.get("namespace_ignore_list", [])
             class_ignore_list += gen_type_dict.get("class_ignore_list", [])
             enum_ignore_list += gen_type_dict.get("enum_ignore_list", [])
             const_ignore_list += gen_type_dict.get("const_ignore_list", [])
