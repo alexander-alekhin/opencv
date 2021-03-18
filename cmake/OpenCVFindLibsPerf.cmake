@@ -14,10 +14,9 @@ if(WITH_IPP)
     include("${OpenCV_SOURCE_DIR}/cmake/OpenCVFindIPPIW.cmake")
     if(HAVE_IPP_IW)
       ocv_include_directories(${IPP_IW_INCLUDES})
-      list(APPEND OPENCV_LINKER_LIBS ${IPP_IW_LIBRARIES})
+      list(APPEND IPP_LIBRARIES ${IPP_IW_LIBRARIES})
     endif()
     ocv_include_directories(${IPP_INCLUDE_DIRS})
-    list(APPEND OPENCV_LINKER_LIBS ${IPP_LIBRARIES})
 
     # Details: #10229
     if(ANDROID AND NOT OPENCV_SKIP_ANDROID_IPP_FIX_1)

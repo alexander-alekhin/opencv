@@ -112,6 +112,8 @@ ocv_target_link_libraries(${the_module} PRIVATE
     "${OPENCV_HAL_LINKER_LIBS}"
 )
 
+ocv_target_link_libraries(${the_module} PRIVATE ippcore)
+
 if(OPENCV_CORE_EXCLUDE_C_API)
   ocv_target_compile_definitions(${the_module} PRIVATE "OPENCV_EXCLUDE_C_API=1")
 endif()

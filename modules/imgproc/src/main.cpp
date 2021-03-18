@@ -47,6 +47,6 @@
 
 #include "precomp.hpp"
 
-IPP_INITIALIZER_AUTO
+//IPP_INITIALIZER_AUTO
 
 /* End of file. */

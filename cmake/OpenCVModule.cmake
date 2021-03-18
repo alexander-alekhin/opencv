@@ -941,7 +941,10 @@ macro(_ocv_create_module)
   ocv_target_link_libraries(${the_module} PUBLIC    ${OPENCV_MODULE_${the_module}_DEPS_EXT}
                                           INTERFACE ${OPENCV_MODULE_${the_module}_DEPS_EXT}
   )
-  ocv_target_link_libraries(${the_module} PRIVATE ${OPENCV_LINKER_LIBS} ${OPENCV_HAL_LINKER_LIBS} ${IPP_LIBS} ${ARGN})
+  if(OPENCV_MODULE_${the_module}_CLASS STREQUAL "PUBLIC")  # opencv_ts should not link with IPP
+    ocv_target_link_libraries(${the_module} PRIVATE ${IPP_LIBRARIES})
+  endif()
+  ocv_target_link_libraries(${the_module} PRIVATE ${OPENCV_LINKER_LIBS} ${OPENCV_HAL_LINKER_LIBS} ${ARGN})
   if (HAVE_CUDA)
     ocv_target_link_libraries(${the_module} PRIVATE ${CUDA_LIBRARIES} ${CUDA_npp_LIBRARY})
   endif()

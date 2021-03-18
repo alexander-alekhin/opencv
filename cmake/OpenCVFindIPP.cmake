@@ -191,6 +191,10 @@ macro(ipp_detect_version)
     _ipp_add_library(vm)
     _ipp_add_library(core)
 
+message("!!! ${IPP_LIBRARIES}")
+ocv_list_filterout(IPP_LIBRARIES ippcore)
+message("!!! ${IPP_LIBRARIES}")
+
     if(UNIX AND IPP_VERSION_MAJOR LESS 2017)
       get_filename_component(INTEL_COMPILER_LIBRARY_DIR ${IPP_ROOT_DIR}/../lib REALPATH)
       if(NOT EXISTS ${INTEL_COMPILER_LIBRARY_DIR})
